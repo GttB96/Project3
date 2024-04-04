@@ -1,6 +1,7 @@
 -- Database: Project3
 
-DROP DATABASE IF EXISTS "Project3";
+--DROP DATABASE IF EXISTS "Project3";
+
 
 CREATE DATABASE "Project3"
     WITH
@@ -11,6 +12,7 @@ CREATE DATABASE "Project3"
     TABLESPACE = pg_default
     CONNECTION LIMIT = -1
     IS_TEMPLATE = False;
+
 
 
 DROP TABLE IF EXISTS all_historical;
@@ -40,3 +42,8 @@ CREATE TABLE all_historical(
 
 
 select * from all_historical;
+
+
+
+
+
