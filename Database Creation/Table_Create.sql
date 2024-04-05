@@ -22,15 +22,17 @@ CREATE TABLE all_historical(
 
 DROP TABLE IF EXISTS stations;
 
-CREATE TABLE stations(
-	State VARCHAR,
-	BD int,
-	CNG int,
-	E85 int,
-	Electric int,
-	Hydrogen int,
-	LNG int,
-	LPG int,
-	RD int,
-	PRIMARY KEY (State)
+CREATE TABLE stations (
+    ID SERIAL PRIMARY KEY,
+    FuelTypeCode CHAR(4),
+    StreetAddress VARCHAR(255),
+    City VARCHAR(100),
+    State CHAR(2),
+    ZIP CHAR(7),
+    Latitude NUMERIC(9, 6),
+    Longitude NUMERIC(9, 6),
+    StationName VARCHAR(255),
+    MaximumVehicleClass CHAR(3),
+    AccessCode VARCHAR(255),
+    FacilityType VARCHAR(255)
 );
