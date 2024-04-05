@@ -70,7 +70,7 @@ def pie_chart_fuel():
     sql = """
     """
 @app.route('/historical.html')
-def historical_graph_by_year():
+def historical_USA():
     sql = """
     SELECT state, year, electricchargingoutlets AS "electric_charging_outlets"
     FROM all_historical
@@ -80,6 +80,22 @@ def historical_graph_by_year():
     result = db.session.execute(text(sql))
     historical_data = [dict(row) for row in result.mappings()]
     return render_template('historical.html', historical_data=historical_data)
+
+@app.route('/historical.html')
+def historical_specific_years():
+    # Define the specific years you want to include in the data
+    specific_years = ['2020', '2021', '2022', '2023']
+
+    sql = """
+    SELECT state, year, electricchargingoutlets AS "electric_charging_outlets"
+    FROM all_historical
+    WHERE fueltypecode = 'ELEC' AND year IN :specific_years
+    ORDER BY state
+    """
+    result = db.session.execute(text(sql), {'specific_years': specific_years})
+    historical_data = [dict(row) for row in result.mappings()]
+    return render_template('historical.html', historical_data=historical_data)
+
     
 if __name__ == '__main__':
     app.run(debug=True)
