@@ -1,5 +1,6 @@
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 from dotenv import load_dotenv
 import os
 
@@ -30,23 +31,44 @@ class AllHistorical(db.Model):
     propanetotal = db.Column(db.Numeric)
     total = db.Column(db.Numeric)
 
-class Stations(db.Model):
+class Station(db.Model):
     __tablename__ = 'stations'
-    state = db.Column(db.String, primary_key=True)
-    bd = db.Column(db.Integer)
-    cng = db.Column(db.Integer)
-    e85 = db.Column(db.Integer)
-    electric = db.Column(db.Integer)
-    hydrogen = db.Column(db.Integer)
-    lng = db.Column(db.Integer)
-    lpg = db.Column(db.Integer)
-    rd = db.Column(db.Integer)
+    id = db.Column(db.Integer, primary_key=True)
+    fueltypecode = db.Column(db.String(4))
+    streetaddress = db.Column(db.String(255))
+    city = db.Column(db.String(100))
+    state = db.Column(db.String(2))
+    zip = db.Column(db.String(7))
+    latitude = db.Column(db.Numeric(9, 6))
+    longitude = db.Column(db.Numeric(9, 6))
+    stationname = db.Column(db.String(255))
+    maximumvehicleclass = db.Column(db.String(3))
+    accesscode = db.Column(db.String(255))
+    facilitytype = db.Column(db.String(255))
 
 @app.route('/')
 def index():
-    # Fetch the first 10 records
-    data = AllHistorical.query.limit(10).all()
-    return render_template('test.html', data=data)
+    return render_template('index.html')
 
+@app.route('/map.html')
+def stations():
+    sql = """
+    SELECT streetaddress AS "street_address", city, state, zip, latitude, longitude, fueltypecode,
+           COUNT(*) AS station_count
+    FROM stations
+    WHERE fueltypecode = 'ELEC'
+    GROUP BY streetaddress, city, state, zip, latitude, longitude, fueltypecode
+    ORDER BY COUNT(*) DESC
+    LIMIT 500
+    """
+    result = db.session.execute(text(sql))
+    stations_by_address = [dict(row) for row in result.mappings()]
+    return render_template('map.html', stations_by_address=stations_by_address)
+
+@app.route('/station.html')
+def pie_chart_fuel():
+    sql = """
+    """
+    
 if __name__ == '__main__':
     app.run(debug=True)
