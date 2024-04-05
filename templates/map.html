@@ -11,8 +11,13 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
   <style>
-    #map { height: 400px; }
+    #map {
+      height: 600px;
+      width: 1000px;
+      margin: auto;
+    }
   </style>
+  
 </head>
 
 <body>
@@ -21,10 +26,11 @@
       <div class="col-md-12 p-5 text-center bg-light">
         <h1>Electric Charging Stations in the US</h1>
         <p>Let's explore the dataset</p>
-        <img src="../htmlimages/mapp.jpg" alt="Mapp" style="width: 300px; height: 200px;">
+        <img src="{{ url_for('static', filename='htmlimages/mapp.jpg') }}" alt="Mapp" style="width: 300px; height: 200px;">
       </div>
     </div>
   </div>
+
   <div id="map"></div>
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script>

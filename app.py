@@ -59,7 +59,7 @@ def stations():
     WHERE fueltypecode = 'ELEC'
     GROUP BY streetaddress, city, state, zip, latitude, longitude, fueltypecode
     ORDER BY COUNT(*) DESC
-    LIMIT 500
+    LIMIT 1000
     """
     result = db.session.execute(text(sql))
     stations_by_address = [dict(row) for row in result.mappings()]

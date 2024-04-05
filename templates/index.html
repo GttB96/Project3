@@ -1,7 +1,5 @@
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +9,6 @@
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
-
 <body>
 
   <div class="container">
@@ -19,63 +16,30 @@
       <div class="col-md-12 p-5 text-center bg-light">
         <h1>Electric Charging Stations in the US</h1>
         <p>Let's explore the dataset</p>
-        <img src="../htmlimages/commercialev.jpg" alt="Commercial EV" style="width: 300px; height: 200px;">
+        <img src="{{ url_for('static', filename='htmlimages/commercialev.jpg') }}" alt="Commercial EV" style="width: 300px; height: 200px;">
       </div>
     </div>
     <div class="row">
       <div class="col-md-2">
         <h6>Click here</h6>
-        <!-- <select id="selDataset" onchange="optionChanged(this.value)"></select> -->
         <div class="d-flex align-items-center">
-          <img src="../htmlimages/histo.jpg" alt="History" style="width: 25px; height: 25px;">
+          <img src="{{ url_for('static', filename='htmlimages/histo.jpg') }}" alt="History" style="width: 25px; height: 25px;">
           <button class="btn" onclick="window.location.href='historical.html'">Historical Data</button>
         </div>
         <div class="d-flex align-items-center">
-          <img src="../htmlimages/map_icon.jpg" alt="Map Icon" style="width: 25px; height: 25px;">
+          <img src="{{ url_for('static', filename='htmlimages/map_icon.jpg') }}" alt="Map Icon" style="width: 25px; height: 25px;">
           <button class="btn" onclick="window.location.href='map.html'">Station Map</button>
           <p></p>
         </div>
         <div class="d-flex align-items-center">
-          <img src="../htmlimages/st_icon.jpg" alt="St Icon" style="width: 25px; height: 25px;"> 
+          <img src="{{ url_for('static', filename='htmlimages/st_icon.jpg') }}" alt="St Icon" style="width: 25px; height: 25px;"> 
           <button class="btn" onclick="window.location.href='station.html'">Stations</button>
         </div>
-        <!-- <button onclick="window.location.href='historical.html'">Historical Data</button> -->
       </div>
-
-
-      <!-- <div class="col-md-2">
-        <div class="card card-body bg-light">
-          <h6>Test Subject ID No.:</h6>
-          <select id="selDataset" onchange="optionChanged(this.value)">
-          </select>
-        </div>
-        <div class="card card-primary">
-          <div class="card-header">
-            <h4 class="card-title">Demographic Info</h4>
-          </div>
-          <div id="sample-metadata" class="card-body"></div>
-        </div>
-      </div>
-      <div class="col-md-5">
-        <div id="bar"></div>
-      </div>
-      <div class="col-md-5">
-        <div id="gauge"></div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <div id="bubble"></div>
-      </div>
-    </div> 
-  -->
   </div>
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="./static/js/logic.js"></script>
-
+  <script src="{{ url_for('static', filename='js/logic.js') }}"></script>
 
 </body>
-
 </html>
-
