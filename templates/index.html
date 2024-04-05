@@ -21,22 +21,22 @@
     </div>
     <div class="row">
       <div class="col-md-2">
-        <h6>Click here</h6>
-        <div class="d-flex align-items-center">
-          <img src="{{ url_for('static', filename='htmlimages/histo.jpg') }}" alt="History" style="width: 25px; height: 25px;">
-          <button class="btn" onclick="window.location.href='historical'">Historical Data</button>
-        </div>
-        <div class="d-flex align-items-center">
-          <img src="{{ url_for('static', filename='htmlimages/map_icon.jpg') }}" alt="Map Icon" style="width: 25px; height: 25px;">
-          <button class="btn" onclick="window.location.href='map'">Station Map</button>
-          <p></p>
-        </div>
-        <div class="d-flex align-items-center">
-          <img src="{{ url_for('static', filename='htmlimages/st_icon.jpg') }}" alt="St Icon" style="width: 25px; height: 25px;"> 
-          <button class="btn" onclick="window.location.href='station'">Stations</button>
-        </div>
+          <div style="display: block; width: 100%; text-align: center; padding: 6px 12px; background-color: #007bff; color: white; text-decoration: none; margin-bottom: 20px;">Click below</div>
+          <div class="d-flex align-items-center" style="margin-bottom: 5px;">
+              <img src="{{ url_for('static', filename='htmlimages/histo.jpg') }}" alt="History" style="width: 100px; height: 100px;">
+              <button onclick="window.location.href='historical'" style="background-color: #007bff; color: white; text-decoration: none; padding: 6px 12px; margin-left: 10px;">Historical Data</button>
+          </div>
+          <div class="d-flex align-items-center" style="margin-bottom: 5px;">
+              <img src="{{ url_for('static', filename='htmlimages/map_icon.jpg') }}" alt="Map Icon" style="width: 100px; height: 100px;">
+              <button onclick="window.location.href='map'" style="background-color: #007bff; color: white; text-decoration: none; padding: 6px 12px; margin-left: 10px;">Station Map</button>
+          </div>
+          <div class="d-flex align-items-center">
+              <img src="{{ url_for('static', filename='htmlimages/st_icon.jpg') }}" alt="St Icon" style="width: 100px; height: 100px;">
+              <button onclick="window.location.href='station'" style="background-color: #007bff; color: white; text-decoration: none; padding: 6px 12px; margin-left: 10px;">Stations</button>
+          </div>
       </div>
   </div>
+  
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="{{ url_for('static', filename='js/logic.js') }}"></script>
