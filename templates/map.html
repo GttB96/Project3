@@ -32,19 +32,29 @@
   </div>
 
   <div id="map"></div>
+  <script type="text/javascript">
+    var chargeIconUrl = "{{ url_for('static', filename='htmlimages/charge.png') }}";
+  </script>
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script>
     var stations = {{ stations_by_address|tojson }};
-    var map = L.map('map').setView([39.50, -98.35], 4); // Center map on the US
+    var map = L.map('map').setView([39.50, -98.35], 4);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    stations.forEach(function(station) {
-        L.marker([station.latitude, station.longitude]).addTo(map)
-        .bindPopup(`<b>${station.street_address}</b><br>${station.city}, ${station.state} ${station.zip}<br>${station.station_count} stations<br>Fuel Type: ${station.fueltypecode}`);
-    });
+    var customIcon = L.icon({
+    iconUrl: chargeIconUrl,
+    iconSize: [32, 32], 
+    iconAnchor: [16, 32], 
+    popupAnchor: [0, -32] 
+});
+
+stations.forEach(function(station) {
+    L.marker([station.latitude, station.longitude], {icon: customIcon}).addTo(map)
+    .bindPopup(`<b>${station.street_address}</b><br>${station.city}, ${station.state} ${station.zip}<br>Station Count: ${station.station_count}<br>Fuel Type: ${station.fueltypecode}`);
+});
 </script>
 </body>
 
