@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Electric Charging Stations Data</title>
+</head>
+<body>
+    <h1>Sample Electric Charging Stations Data</h1>
+    <table border="1">
+        <tr>
+            <th>State</th>
+            <th>Year</th>
+            <th>Electric Stations</th>
+            <th>Electric Charging Outlets</th>
+            <th>Total Electric</th>
+        </tr>
+        {% for item in data %}
+            <tr>
+                <td>{{ item.state }}</td>
+                <td>{{ item.year }}</td>
+                <td>{{ item.electricstations }}</td>
+                <td>{{ item.electricchargingoutlets }}</td>
+                <td>{{ item.electrictotal }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
