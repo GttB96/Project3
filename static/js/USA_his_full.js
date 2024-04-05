@@ -12,12 +12,12 @@ fetch('/historical.html')
 
     // Extract years and total electric charging outlets for the USA
     let years = Object.keys(groupedData);
-    let usaElectricChargingOutlets = Object.values(groupedData);
+    let usaelectriccharginguutlets = Object.values(groupedData);
 
     // Create a trace object for the line graph
     let trace1 = {
       x: years,
-      y: usaElectricChargingOutlets,
+      y: usaelectricchargingoutlets,
       type: 'line',
       mode: 'lines+markers',
       name: 'USA Electric Charging Outlets'
