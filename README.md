@@ -9,7 +9,7 @@
 
 ### Data Import to Postgres SQL:
 #### Open PostGres and Create New Database - Project3 
-#####(SQL_Create_Project3Database.sql)
+##### (SQL_Create_Project3Database.sql)
 #### Import Table_Create.sql file to pg admin to create tables
 #### Import csv files into database tables in Postgres manually - or copy the files to the Postgres data directory and import using SQL_ImportData.sql (instructions in sql script)
 #####        [Current_Alt_Fuel_locations.csv] to stations & [all_historical.csv] to all_historical
