@@ -50,7 +50,7 @@ class Station(db.Model):
 def index():
     return render_template('index.html')
 
-@app.route('/map.html')
+@app.route('/map')
 def stations():
     sql = """
     SELECT streetaddress AS "street_address", city, state, zip, latitude, longitude, fueltypecode,
