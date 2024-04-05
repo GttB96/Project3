@@ -1,30 +1,38 @@
 fetch('/historical.html')
   .then(response => response.json())
   .then(data => {
-    // Extract unique states for x-axis
-    let states = [...new Set(data.map(entry => entry.state))];
+    // Extract unique years from the data
+    let years = [...new Set(data.map(entry => entry.year))];
 
-    // Create trace objects for each year
-    let traces = [];
-    data.forEach(entry => {
+    // Create a bar chart for each year
+    years.forEach(year => {
+      // Filter the data for the current year
+      let filteredData = data.filter(entry => entry.year === year);
+      
+      // Extract states and electric charging outlets for the current year
+      let states = filteredData.map(entry => entry.state);
+      let electricChargingOutlets = filteredData.map(entry => entry.electric_charging_outlets);
+
+      // Create a trace object for the bar chart
       let trace = {
         x: states,
-        y: [entry.electric_charging_outlets], // Use the electric charging outlets for y-axis
+        y: electricChargingOutlets,
         type: 'bar',
-        name: entry.year
+        name: `Electric Charging Outlets ${year}`
       };
-      traces.push(trace);
+
+      // Put the trace object in an array
+      let data = [trace];
+
+      // Define the layout
+      let layout = {
+        title: `Electric Charging Outlets Count by State for ${year}`,
+        xaxis: { title: 'State' },
+        yaxis: { title: 'Electric Charging Outlets Count' }
+      };
+
+      // Create the Plotly bar chart
+      Plotly.newPlot(`plot-${year}`, data, layout);
     });
-
-    // Define the layout
-    let layout = {
-      title: "Electric Charging Outlets by State",
-      xaxis: { title: 'State' },
-      yaxis: { title: 'Electric Charging Outlets' },
-      barmode: 'group'
-    };
-
-    // Create the Plotly bar chart
-    Plotly.newPlot("plot", traces, layout);
   })
   .catch(error => console.error('Error fetching data:', error));
