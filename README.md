@@ -19,6 +19,4 @@
 #### Update watchdog in project directory - pip install --upgrade watchdog
 #### create .env file on repository and input in file: DATABASE_URL=postgresql://username:password@localhost/Project3
 ##### **(change username & password with your own)**
-
-
-
+#### Run python app.py in terminal on repsoitory to execute the application
