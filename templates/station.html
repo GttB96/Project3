@@ -13,22 +13,24 @@
 </head>
 
 <body>
-
   <div class="container">
     <div class="row">
       <div class="col-md-12 p-5 text-center bg-light">
         <h1>Electric Charging Stations in the US</h1>
         <p>Let's explore the dataset</p>
-        <img src="htmlimages/statp.jpg" alt="Your Image" style="width: 300px; height: 200px;">
+        <img src="{{ url_for('static', filename='htmlimages/statp.jpg') }}" alt="Statp" style="width: 300px; height: 200px;">
       </div>
     </div>
-    <div class="row">
+    <div style="width: 25%; margin-bottom: 10px; margin-left: auto; margin-right: auto;">
+      <a href="/" style="display: block; width: 100%; text-align: center; padding: 6px 12px; background-color: #007bff; color: white; text-decoration: none; margin-bottom: 5px;">Go Home</a>
+  </div>
+  <div class="row">
       <div class="col-md-2">
-        <h6>Historical Data </h6>
-        <button onclick="window.location.href='https://example.com/page1.html'">Create js logic and import libraries here</button>
- 
+          <h6>Station Data</h6>
       </div>
   </div>
+
+  
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="./static/js/logic.js"></script>

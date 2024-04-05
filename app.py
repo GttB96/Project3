@@ -47,7 +47,7 @@ class Station(db.Model):
     facilitytype = db.Column(db.String(255))
 
 @app.route('/')
-def index():
+def index_page():
     return render_template('index.html')
 
 @app.route('/map')
@@ -65,10 +65,9 @@ def stations():
     stations_by_address = [dict(row) for row in result.mappings()]
     return render_template('map.html', stations_by_address=stations_by_address)
 
-@app.route('/station.html')
-def pie_chart_fuel():
-    sql = """
-    """
+@app.route('/station')
+def station_page():
+    return render_template('station.html')
     
 if __name__ == '__main__':
     app.run(debug=True)
