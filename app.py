@@ -3,8 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 from dotenv import load_dotenv
 from flask import request, jsonify
+from sqlalchemy import func
 import os
 
+## need to load in .env file with secure credentials
 load_dotenv()
 
 app = Flask(__name__)
@@ -13,7 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-##defining columns of data
+##Defining columns of data
 
 class AllHistorical(db.Model):
     __tablename__ = 'all_historical'
@@ -57,18 +59,72 @@ def index_page():
 ##Map page rendering
 @app.route('/map')
 def stations_map():
-    sql = """
-    SELECT streetaddress AS "street_address", city, state, zip, latitude, longitude, fueltypecode,
+    # Query for individual stations
+    sql_stations = """
+    SELECT streetaddress AS "street_address", city, state, zip, latitude, longitude, fueltypecode, stationname, facilitytype,
            COUNT(*) AS station_count
     FROM stations
-    WHERE fueltypecode = 'ELEC'
-    GROUP BY streetaddress, city, state, zip, latitude, longitude, fueltypecode
+    WHERE fueltypecode = 'ELEC' AND accesscode = 'public'
+      AND (maximumvehicleclass = 'LD' OR maximumvehicleclass IS NULL)
+    GROUP BY streetaddress, city, state, zip, latitude, longitude, fueltypecode, stationname, facilitytype
     ORDER BY COUNT(*) DESC
-    LIMIT 1000
+    LIMIT 5000;
     """
-    result = db.session.execute(text(sql))
-    stations_by_address = [dict(row) for row in result.mappings()]
-    return render_template('map.html', stations_by_address=stations_by_address)
+    stations_result = db.session.execute(text(sql_stations))
+    stations_by_address = [dict(row) for row in stations_result.mappings()]
+
+    # Query for aggregating stations by city for heatmap
+    sql_cities = """
+    SELECT city, state, AVG(latitude) AS avg_latitude, AVG(longitude) AS avg_longitude, COUNT(*) AS station_count
+    FROM stations
+    WHERE fueltypecode = 'ELEC' AND accesscode = 'public' 
+          AND (maximumvehicleclass = 'LD' OR maximumvehicleclass IS NULL)
+    GROUP BY city, state;
+    """
+    cities_result = db.session.execute(text(sql_cities))
+    cities_aggregated = [dict(row) for row in cities_result.mappings()]
+
+    # Pass both datasets to the template
+    return render_template('map.html', stations_by_address=stations_by_address, cities_aggregated=cities_aggregated)
+
+# Route to find nearest station function
+@app.route('/find-nearest-station', methods=['GET'])
+def find_nearest_station():
+    user_zip = request.args.get('zip')
+
+    # Query to find stations with the same zip code
+    stations_query = text("""
+    SELECT id, streetaddress, city, state, zip, latitude, longitude, fueltypecode, stationname, facilitytype,
+    (SELECT COUNT(*) 
+     FROM stations AS s 
+     WHERE s.fueltypecode = 'ELEC' AND s.zip = :zip_code
+    ) AS station_count
+    FROM stations
+    WHERE fueltypecode = 'ELEC' AND zip = :zip_code
+    LIMIT 1
+    """)
+    station_result = db.session.execute(stations_query, {'zip_code': user_zip}).fetchone()
+
+    if station_result:
+        station_count = db.session.query(func.count(Station.id)).filter_by(fueltypecode=station_result.fueltypecode, zip=station_result.zip).scalar()
+
+        # Need to convert to a dictionary to render in javascript
+        station_dict = {
+            "id": station_result.id,
+            "streetaddress": station_result.streetaddress,
+            "city": station_result.city,
+            "state": station_result.state,
+            "zip": station_result.zip,
+            "latitude": float(station_result.latitude),
+            "longitude": float(station_result.longitude),
+            "fueltypecode": station_result.fueltypecode,
+            "stationname": station_result.stationname,
+            "facilitytype": station_result.facilitytype,
+            "station_count": station_count
+        }
+        return jsonify(station_dict)
+    else:
+        return jsonify({"error": "No stations found in this zip code."})
 
 ##Defining regions
 regions = {
@@ -85,7 +141,7 @@ def station_page():
     state_query = text("""
     SELECT state, COUNT(*) AS count 
     FROM stations 
-    WHERE fueltypecode = 'ELEC' 
+    WHERE fueltypecode = 'ELEC' AND accesscode = 'public' AND (maximumvehicleclass = 'LD' OR maximumvehicleclass IS NULL)
     GROUP BY state
     """)
     state_result = db.session.execute(state_query).mappings()
@@ -95,7 +151,7 @@ def station_page():
     city_query = text("""
     SELECT city, state, COUNT(*) AS count 
     FROM stations 
-    WHERE fueltypecode = 'ELEC' 
+    WHERE fueltypecode = 'ELEC' AND accesscode = 'public' AND (maximumvehicleclass = 'LD' OR maximumvehicleclass IS NULL)
     GROUP BY city, state 
     ORDER BY count DESC 
     LIMIT 50
@@ -110,7 +166,6 @@ def station_page():
             if state_data['state'] in states:
                 region_counts[region] += state_data['count']
 
-    # Convert region_counts dict to a list of dicts for easier processing in the template
     regions_data = [{'region': region, 'count': count} for region, count in region_counts.items()]
 
     return render_template('station.html', states_data=states_data, cities_data=cities_data, regions_data=regions_data)
