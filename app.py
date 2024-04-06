@@ -168,7 +168,21 @@ def station_page():
 
     regions_data = [{'region': region, 'count': count} for region, count in region_counts.items()]
 
-    return render_template('station.html', states_data=states_data, cities_data=cities_data, regions_data=regions_data)
+    facilitytype_query = text("""
+    SELECT facilitytype, COUNT(*) AS count 
+    FROM stations 
+    WHERE fueltypecode = 'ELEC' 
+    AND accesscode = 'public' 
+    AND (maximumvehicleclass = 'LD' OR maximumvehicleclass IS NULL)
+     AND facilitytype IS NOT NULL -- Exclude null values
+    GROUP BY facilitytype
+    ORDER BY count DESC -- Sort by count in descending order
+    LIMIT 20
+    """)
+    facilitytype_result = db.session.execute(facilitytype_query).mappings()
+    facilitytype_data = [{'facilitytype': row['facilitytype'], 'count': row['count']} for row in facilitytype_result]
+
+    return render_template('station.html', states_data=states_data, cities_data=cities_data, regions_data=regions_data, facilitytype_data=facilitytype_data)
 
 if __name__ == '__main__':
     app.run(debug=True)

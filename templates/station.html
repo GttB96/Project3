@@ -33,7 +33,7 @@
       </div>
     </div>
   
-    <div style="width: 100%; max-width: 1000px; margin: auto; text-align: left;">
+    <div style="width: 100%; max-width: 1250px; margin: auto; text-align: left;">
       <h3>Stations by State</h3>
       <canvas id="statesChart"></canvas>
     </div>
@@ -47,6 +47,12 @@
       <h3>Stations by Region</h3>
       <canvas id="regionsChart"></canvas>
     </div>
+
+    <div style="width: 100%; max-width: 600px; margin: auto; text-align: left;">
+      <h3>Stations by Most Popular Facility Types</h3>
+      <canvas id="facilityChart"></canvas>
+    </div>
+
   </div>
   
   <script>
@@ -54,6 +60,7 @@
     var statesData = {{ states_data | tojson }};
     var citiesData = {{ cities_data | tojson }};
     var regionsData = {{ regions_data | tojson }}; 
+    var facilityData = {{ facilitytype_data | tojson }}
     
     // States Chart
     statesData.sort((a, b) => a.state.localeCompare(b.state));
@@ -142,9 +149,33 @@ new Chart(citiesChartCtx, {
       },
       options: {
     responsive: true,
-    indexAxis: 'y', // For a horizontal bar chart
   }
     });
+
+    // Facilities Chart
+  function generateRandomColor() {
+  var hue = Math.floor(Math.random() * 360); 
+  var saturation = Math.floor(Math.random() * 51) + 50 + '%'; 
+  var lightness = Math.floor(Math.random() * 21) + 40 + '%'; 
+  return `hsl(${hue}, ${saturation}, ${lightness})`; 
+}
+var facilityChartCtx = document.getElementById('facilityChart').getContext('2d');
+new Chart(facilityChartCtx, {
+  type: 'pie',
+  data: {
+    labels: facilityData.map(data => data.facilitytype),
+    datasets: [{
+      label: 'Stations by Facility Type',
+      data: facilityData.map(data => data.count),
+      backgroundColor: facilityData.map(data => generateRandomColor()),
+      borderColor: 'rgba(255, 255, 255, 1)',
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true
+  }
+});
   </script>
 
 </div>
