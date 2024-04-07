@@ -184,5 +184,17 @@ def station_page():
 
     return render_template('station.html', states_data=states_data, cities_data=cities_data, regions_data=regions_data, facilitytype_data=facilitytype_data)
 
+@app.route('/historical')
+def historical_USA():
+    sql = """
+    SELECT year, SUM(electricstations) AS total_electric_stations
+    FROM all_historical
+    GROUP BY year
+    ORDER BY year
+    """
+    result = db.session.execute(text(sql))
+    historical_data = [dict(row) for row in result.mappings()]
+    return render_template('historical.html', historical_data=historical_data)
+
 if __name__ == '__main__':
     app.run(debug=True)
