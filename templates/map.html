@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Electric Charging Stations in the US</title>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
@@ -14,7 +12,7 @@
       height: 600px;
       width: 1000px;
       margin: auto;
-      margin-bottom: 20px; /* Add some space between the maps */
+      margin-bottom: 20px;
     }
   </style>
 </head>
@@ -23,22 +21,27 @@
     <div class="row">
       <div class="col-md-12 p-5 text-center bg-light">
         <h1>Electric Charging Stations in the US</h1>
-        <p>Let's explore the dataset</p>
+        <p>Find EV Stations and Density Map Below</p>
         <img src="{{ url_for('static', filename='htmlimages/mapp.jpg') }}" alt="Mapp" style="width: 300px; height: 200px;">
       </div>
     </div>
   </div>
-
-  <!-- Map for markers -->
-  <div id="map"></div>
+  <div style="width: 25%; margin-bottom: 10px; margin-left: auto; margin-right: auto;">
+    <a href="/" style="display: block; width: 100%; text-align: center; padding: 6px 12px; background-color: #007bff; color: white; text-decoration: none; margin-bottom: 5px;">Go Home</a>
+  </div>
+  <div style="text-align: center; margin-bottom: 20px; margin-top: 50px;">
+    <input type="text" id="zipInput" placeholder="Enter Zip Code">
+    <button onclick="findNearestStation()">Find Nearest Station</button>
+  </div>
   
-  <!-- Map for the heat map -->
+  <div id="map"></div>
   <div id="heatMap"></div>
 
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
   <script>
     var stations = {{ stations_by_address|tojson }};
+    var cityAggregates = {{ cities_aggregated | tojson }};
 
     // First Map
     var map = L.map('map').setView([39.50, -98.35], 4);
@@ -55,7 +58,7 @@
 
     stations.forEach(function(station) {
       L.marker([station.latitude, station.longitude], {icon: customIcon}).addTo(map)
-      .bindPopup(`<b>${station.street_address}</b><br>${station.city}, ${station.state} ${station.zip}<br>Station Count: ${station.station_count}<br>Fuel Type: ${station.fueltypecode}`);
+        .bindPopup(`<b>${station.stationname}</b><br>${station.street_address}<br>${station.city}, ${station.state} ${station.zip}<br>Station Count: ${station.station_count}<br>Fuel Type: ${station.fueltypecode}<br>Facility Type: ${station.facilitytype}`);
     });
 
     // Second Map
@@ -64,15 +67,45 @@
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(heatMap);
 
-    var heatMapData = stations.map(function(station) {
-      return [station.latitude, station.longitude, station.station_count ? station.station_count : 1];
+    var heatMapData = cityAggregates.map(function(city) {
+      return [city.avg_latitude, city.avg_longitude, Math.log(city.station_count + 1)]; 
     });
 
     L.heatLayer(heatMapData, {
-      radius: 25,
-      blur: 15,
-      maxZoom: 17,
+      radius: 30,
+      blur: 10,
+      gradient: {
+        0.05: 'blue', 
+        0.1: 'cyan', 
+        0.2: 'lime',
+        0.25: 'yellow', 
+        0.3: 'orange', 
+        0.4: 'red'
+      }
     }).addTo(heatMap);
+  </script>
+  <!-- function to find nearest station using button -->
+  <script>
+    function findNearestStation() {
+      var zipCode = document.getElementById('zipInput').value;
+      fetch(`/find-nearest-station?zip=${zipCode}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.latitude && data.longitude) {
+            map.eachLayer(function(layer) {
+              if (layer instanceof L.Marker) {
+                map.removeLayer(layer);
+              }
+            });
+            L.marker([data.latitude, data.longitude], {icon: customIcon}).addTo(map)
+            .bindPopup(`<b>${data.stationname}</b><br>${data.streetaddress}<br>${data.city}, ${data.state} ${data.zip}<br>Station Count: ${data.station_count}<br>Fuel Type: ${data.fueltypecode}<br>Facility Type: ${data.facilitytype}`);
+            map.setView([data.latitude, data.longitude], 13);
+          } else {
+            alert('No nearest station found for this zip code.');
+          }
+        })
+        .catch(error => console.error('Error:', error));
+    }
   </script>
 </body>
 </html>
