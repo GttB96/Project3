@@ -74,7 +74,7 @@ WHERE
     AND LENGTH(zip) = 5 -- Ensure ZIP codes are 5 digits
     AND zip NOT LIKE '%.0' -- Exclude ZIP codes ending in ".0"
 ORDER BY RANDOM()
-LIMIT 10000;
+LIMIT 5500;
     """
     stations_result = db.session.execute(text(sql_stations))
     stations_by_address = [dict(row) for row in stations_result.mappings()]
