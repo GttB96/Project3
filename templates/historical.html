@@ -23,15 +23,49 @@
         <img src="{{ url_for('static', filename='htmlimages/station2199.jpg') }}" alt= "Hist Station" style="width: 300px; height: 200px;">
       </div>
     </div>
-    <div class="row">
-      <div class="col-md-2">
-        <h6>Historical Data </h6>
-        <button onclick="window.location.href='https://example.com/page1.html'">Year 2020</button>
-        <button onclick="window.location.href='https://example.com/page2.html'">Year 2022</button>
-        <button onclick="window.location.href='https://example.com/page3.html'">Year 2021</button>
-        <button onclick="window.location.href='https://example.com/page3.html'">Year 2020</button>
-      </div>
+    <div style="width: 25%; margin-bottom: 10px; margin-left: auto; margin-right: auto;">
+      <a href="/" style="display: block; width: 100%; text-align: center; padding: 6px 12px; background-color: #007bff; color: white; text-decoration: none; margin-bottom: 5px;">Go Home</a>
   </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12 text-center">
+          <h2>Historical Data Charts</h2>
+        </div>
+      </div>
+
+      <div style="width: 100%; max-width: 1250px; margin: auto; margin-top: 50px; text-align: left;">
+        <h3>Number of Stations Per Year</h3>
+        <canvas id="his_linechart"></canvas>
+      </div>
+      <div>
+        <h3>Compound Annual Growth Rate (CAGR) from 2014 to 2023:</h3>
+        <p>{{ cagr_percentage }}%</p>
+    </div>
+    
+    <div>
+      <h3>Year-Over-Year Growth:</h3>
+      <table class="table">
+          <thead>
+              <tr>
+                  <th>Year</th>
+                  <th>Growth (%)</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for item in yoy_growth %}
+                  <tr>
+                      <td>{{ item.year }}</td>
+                      <td>{{ item.growth }}%</td>
+                  </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+  <div>
+    <h3>Total Growth from 2014 to 2023:</h3>
+    <p>{{ total_growth_percentage }}%</p>
+</div>
+
   <canvas id="his_linechart" width="400" height="200"></canvas>
     <script>
         var ctx = document.getElementById('his_linechart').getContext('2d');
@@ -54,13 +88,17 @@
                     y: {
                         beginAtZero: true
                     }
-                }
+                },
+                plugins: {
+      legend: {
+        display: false
+      }
+    }
             }
         });
     </script>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="./static/js/logic.js"></script>
-</body>
 
+
+</body>
 </html>
 
