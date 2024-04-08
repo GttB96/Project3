@@ -61,31 +61,44 @@ def index_page():
 def stations_map():
     # Query for individual stations
     sql_stations = """
-    SELECT streetaddress AS "street_address", city, state, zip, latitude, longitude, fueltypecode, stationname, facilitytype,
-           COUNT(*) AS station_count
-    FROM stations
-    WHERE fueltypecode = 'ELEC' AND accesscode = 'public'
-      AND (maximumvehicleclass = 'LD' OR maximumvehicleclass IS NULL)
-    GROUP BY streetaddress, city, state, zip, latitude, longitude, fueltypecode, stationname, facilitytype
-    ORDER BY COUNT(*) DESC
-    LIMIT 5000;
+ SELECT 
+    id, streetaddress AS "street_address", city, state, zip, latitude, longitude, 
+    fueltypecode, stationname, facilitytype
+FROM 
+    stations
+WHERE 
+    fueltypecode = 'ELEC' 
+    AND accesscode = 'public'
+    AND (maximumvehicleclass = 'LD' OR maximumvehicleclass IS NULL)
+    AND state <> 'PR'
+    AND LENGTH(zip) = 5 -- Ensure ZIP codes are 5 digits
+    AND zip NOT LIKE '%.0' -- Exclude ZIP codes ending in ".0"
+ORDER BY RANDOM()
+LIMIT 5500;
     """
     stations_result = db.session.execute(text(sql_stations))
     stations_by_address = [dict(row) for row in stations_result.mappings()]
 
     # Query for aggregating stations by city for heatmap
-    sql_cities = """
-    SELECT city, state, AVG(latitude) AS avg_latitude, AVG(longitude) AS avg_longitude, COUNT(*) AS station_count
-    FROM stations
-    WHERE fueltypecode = 'ELEC' AND accesscode = 'public' 
-          AND (maximumvehicleclass = 'LD' OR maximumvehicleclass IS NULL)
-    GROUP BY city, state;
+    all_stations = """
+ SELECT 
+    id, streetaddress AS "street_address", city, state, zip, latitude, longitude, 
+    fueltypecode, stationname, facilitytype
+FROM 
+    stations
+WHERE 
+    fueltypecode = 'ELEC' 
+    AND accesscode = 'public'
+    AND (maximumvehicleclass = 'LD' OR maximumvehicleclass IS NULL)
+    AND state <> 'PR'
+    AND LENGTH(zip) = 5 -- Ensure ZIP codes are 5 digits
+    AND zip NOT LIKE '%.0'; -- Exclude ZIP codes ending in ".0"
     """
-    cities_result = db.session.execute(text(sql_cities))
-    cities_aggregated = [dict(row) for row in cities_result.mappings()]
+    stations_result = db.session.execute(text(all_stations))
+    stationsDataAll = [dict(row) for row in stations_result.mappings()]
 
     # Pass both datasets to the template
-    return render_template('map.html', stations_by_address=stations_by_address, cities_aggregated=cities_aggregated)
+    return render_template('map.html', stations_by_address=stations_by_address, stationsDataAll=stationsDataAll)
 
 # Route to find nearest station function
 @app.route('/find-nearest-station', methods=['GET'])
@@ -184,7 +197,7 @@ def station_page():
 
     return render_template('station.html', states_data=states_data, cities_data=cities_data, regions_data=regions_data, facilitytype_data=facilitytype_data)
 
-@app.route('/historical.html')
+@app.route('/historical')
 def historical_USA():
     sql = """
     SELECT year, SUM(electricstations) AS total_electric_stations
@@ -194,7 +207,42 @@ def historical_USA():
     """
     result = db.session.execute(text(sql))
     historical_data = [dict(row) for row in result.mappings()]
-    return render_template('historical.html', historical_data=historical_data)
+
+    start_value = next((item for item in historical_data if item["year"] == 2014), None)
+    end_value = next((item for item in historical_data if item["year"] == 2023), None)
+    
+    if start_value and end_value:
+        # Convert Decimal to float for calculation
+        start_stations = float(start_value["total_electric_stations"])
+        end_stations = float(end_value["total_electric_stations"])
+        years = 2023 - 2014
+
+        # Use float type for both base and exponent in the power operation
+        cagr = ((end_stations / start_stations) ** (1 / years)) - 1
+        cagr_percentage = round(cagr * 100, 2)
+    else:
+        cagr_percentage = None
+
+    yoy_growth = []
+    for i in range(1, len(historical_data)):
+        year = historical_data[i]["year"]  # Current year
+        current_year_stations = float(historical_data[i]["total_electric_stations"])
+        previous_year_stations = float(historical_data[i-1]["total_electric_stations"])
+        growth_rate = ((current_year_stations - previous_year_stations) / previous_year_stations) * 100
+        yoy_growth.append({"year": year, "growth": round(growth_rate, 2)})
+
+    if start_value and end_value:
+        # Assuming start_value and end_value are already defined for CAGR calculation
+        start_stations = float(start_value["total_electric_stations"])
+        end_stations = float(end_value["total_electric_stations"])
+        
+        # Calculating total growth
+        total_growth = ((end_stations - start_stations) / start_stations) * 100
+        total_growth_percentage = round(total_growth, 2)
+    else:
+        total_growth_percentage = None
+
+    return render_template('historical.html', historical_data=historical_data, cagr_percentage=cagr_percentage, yoy_growth=yoy_growth, total_growth_percentage=total_growth_percentage)
 
 if __name__ == '__main__':
     app.run(debug=True)
