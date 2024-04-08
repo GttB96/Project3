@@ -6,6 +6,10 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Electric Charging Stations in the US</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     #map, #heatMap {
@@ -41,7 +45,7 @@
   <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
   <script>
     var stations = {{ stations_by_address|tojson }};
-    var cityAggregates = {{ cities_aggregated | tojson }};
+    var stationsDataAll = {{ stationsDataAll | tojson }};
 
     // First Map
     var map = L.map('map').setView([39.50, -98.35], 4);
@@ -56,33 +60,53 @@
       popupAnchor: [0, -32] 
     });
 
-    stations.forEach(function(station) {
+    function loadVisibleStations() {
+    // Example: Adjust to fetch or filter data based on map bounds
+    var bounds = map.getBounds();
+    var visibleStations = stations.filter(station => 
+      bounds.contains(L.latLng(station.latitude, station.longitude))
+    );
+
+    // Clear existing markers
+    map.eachLayer(function(layer) {
+      if (layer instanceof L.Marker) {
+        map.removeLayer(layer);
+      }
+    });
+
+    // Add markers for visible stations
+    visibleStations.forEach(function(station) {
       L.marker([station.latitude, station.longitude], {icon: customIcon}).addTo(map)
         .bindPopup(`<b>${station.stationname}</b><br>${station.street_address}<br>${station.city}, ${station.state} ${station.zip}<br>Station Count: ${station.station_count}<br>Fuel Type: ${station.fueltypecode}<br>Facility Type: ${station.facilitytype}`);
     });
+  }
+
+  map.on('moveend', loadVisibleStations);
+  loadVisibleStations();
 
     // Second Map
     var heatMap = L.map('heatMap').setView([39.50, -98.35], 4);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(heatMap);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(heatMap);
 
-    var heatMapData = cityAggregates.map(function(city) {
-      return [city.avg_latitude, city.avg_longitude, Math.log(city.station_count + 1)]; 
-    });
+var heatMapData = stationsDataAll
+.filter(station => station.latitude !== undefined && station.longitude !== undefined)
+.map(station => [station.latitude, station.longitude, 1]); // Each station contributes equally
 
-    L.heatLayer(heatMapData, {
-      radius: 30,
-      blur: 10,
-      gradient: {
-        0.05: 'blue', 
-        0.1: 'cyan', 
-        0.2: 'lime',
-        0.25: 'yellow', 
-        0.3: 'orange', 
-        0.4: 'red'
-      }
-    }).addTo(heatMap);
+L.heatLayer(heatMapData, {
+  radius: 25, // Consider adjusting based on visual testing
+  blur: 15, // Consider adjusting based on visual testing
+  gradient: {
+    0.2: 'blue', 
+    0.4: 'cyan', 
+    0.6: 'lime',
+    0.8: 'yellow', 
+    0.9: 'orange',
+    1.0: 'red'
+  },
+  maxZoom: 13, // Adjust as necessary to control heatmap appearance at various zoom levels
+}).addTo(heatMap);
   </script>
   <!-- function to find nearest station using button -->
   <script>
