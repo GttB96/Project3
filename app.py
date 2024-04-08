@@ -62,17 +62,33 @@ def stations_map():
     # Query for individual stations
     sql_stations = """
  SELECT 
-    id, streetaddress AS "street_address", city, state, zip, latitude, longitude, 
-    fueltypecode, stationname, facilitytype
+    s.id, s.streetaddress AS "street_address", s.city, s.state, s.zip, s.latitude, s.longitude, 
+    s.fueltypecode, s.stationname, s.facilitytype,
+    c.station_count
 FROM 
-    stations
+    stations s
+JOIN (
+    SELECT 
+        city, state, COUNT(*) AS station_count
+    FROM 
+        stations
+    WHERE 
+        fueltypecode = 'ELEC' 
+        AND accesscode = 'public'
+        AND (maximumvehicleclass = 'LD' OR maximumvehicleclass IS NULL)
+        AND state <> 'PR'
+        AND LENGTH(zip) = 5 
+        AND zip NOT LIKE '%.0'
+    GROUP BY 
+        city, state
+) c ON s.city = c.city AND s.state = c.state
 WHERE 
-    fueltypecode = 'ELEC' 
-    AND accesscode = 'public'
-    AND (maximumvehicleclass = 'LD' OR maximumvehicleclass IS NULL)
-    AND state <> 'PR'
-    AND LENGTH(zip) = 5 -- Ensure ZIP codes are 5 digits
-    AND zip NOT LIKE '%.0' -- Exclude ZIP codes ending in ".0"
+    s.fueltypecode = 'ELEC' 
+    AND s.accesscode = 'public'
+    AND (s.maximumvehicleclass = 'LD' OR s.maximumvehicleclass IS NULL)
+    AND s.state <> 'PR'
+    AND LENGTH(s.zip) = 5 
+    AND s.zip NOT LIKE '%.0'
 ORDER BY RANDOM()
 LIMIT 5500;
     """
