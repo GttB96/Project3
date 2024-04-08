@@ -1,3 +1,5 @@
+begin;
+
 DROP TABLE IF EXISTS all_historical;
 
 CREATE TABLE all_historical(
@@ -36,3 +38,6 @@ CREATE TABLE stations (
     AccessCode VARCHAR(255),
     FacilityType VARCHAR(255)
 );
+
+commit;
+
