@@ -33,11 +33,38 @@
         </div>
       </div>
 
-<<<<<<< HEAD
       <div style="width: 100%; max-width: 1250px; margin: auto; margin-top: 50px; text-align: left;">
         <h3>Number of Stations Per Year</h3>
         <canvas id="his_linechart"></canvas>
       </div>
+      <div>
+        <h3>Compound Annual Growth Rate (CAGR) from 2014 to 2023:</h3>
+        <p>{{ cagr_percentage }}%</p>
+    </div>
+    
+    <div>
+      <h3>Year-Over-Year Growth:</h3>
+      <table class="table">
+          <thead>
+              <tr>
+                  <th>Year</th>
+                  <th>Growth (%)</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for item in yoy_growth %}
+                  <tr>
+                      <td>{{ item.year }}</td>
+                      <td>{{ item.growth }}%</td>
+                  </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+  <div>
+    <h3>Total Growth from 2014 to 2023:</h3>
+    <p>{{ total_growth_percentage }}%</p>
+</div>
 
   <canvas id="his_linechart" width="400" height="200"></canvas>
     <script>
@@ -70,12 +97,6 @@
             }
         });
     </script>
-=======
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="./static/js/logic.js"></script>
-  <script src="./static/js/State_Year_history.js"></script>
-  <script src="./static/js/USA_his_full.js"></script>
->>>>>>> 18def797e3168ffb99b0e213a3dac46a0f816d50
 
 
 </body>
