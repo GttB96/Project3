@@ -1,3 +1,6 @@
+### Project 3 Group: EV Charging Station Flask
+## Defining Dependencies
+
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
@@ -6,16 +9,18 @@ from flask import request, jsonify
 from sqlalchemy import func
 import os
 
-## need to load in .env file with secure credentials
+## Loading in .env file with secure credentials
 load_dotenv()
 
+## Creating Flask app
 app = Flask(__name__)
 
+## Creating connection to database using .env file for credentials
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-##Defining columns of data
+## Defining columns of data
 
 class AllHistorical(db.Model):
     __tablename__ = 'all_historical'
@@ -51,12 +56,12 @@ class Station(db.Model):
     accesscode = db.Column(db.String(255))
     facilitytype = db.Column(db.String(255))
 
-##First page rendering
+## First page rendering
 @app.route('/')
 def index_page():
     return render_template('index.html')
 
-##Map page rendering
+## Map page rendering
 @app.route('/map')
 def stations_map():
     # Query for individual stations
@@ -95,7 +100,7 @@ LIMIT 5500;
     stations_result = db.session.execute(text(sql_stations))
     stations_by_address = [dict(row) for row in stations_result.mappings()]
 
-    # Query for aggregating stations by city for heatmap
+    # Query for all stations with filters
     all_stations = """
  SELECT 
     id, streetaddress AS "street_address", city, state, zip, latitude, longitude, 
@@ -113,10 +118,10 @@ WHERE
     stations_result = db.session.execute(text(all_stations))
     stationsDataAll = [dict(row) for row in stations_result.mappings()]
 
-    # Pass both datasets to the template
+    # Passing both datasets to the template
     return render_template('map.html', stations_by_address=stations_by_address, stationsDataAll=stationsDataAll)
 
-# Route to find nearest station function
+## Route to find nearest station function
 @app.route('/find-nearest-station', methods=['GET'])
 def find_nearest_station():
     user_zip = request.args.get('zip')
@@ -155,7 +160,7 @@ def find_nearest_station():
     else:
         return jsonify({"error": "No stations found in this zip code."})
 
-##Defining regions
+## Defining regions for later use in stations stats
 regions = {
     'Northeast': ['CT', 'ME', 'MA', 'NH', 'RI', 'VT', 'NJ', 'NY', 'PA'],
     'Midwest': ['IL', 'IN', 'IA', 'KS', 'MI', 'MN', 'MO', 'NE', 'ND', 'OH', 'SD', 'WI'],
@@ -163,7 +168,7 @@ regions = {
     'West': ['AZ', 'CO', 'ID', 'MT', 'NV', 'NM', 'UT', 'WY', 'AK', 'CA', 'HI', 'OR', 'WA']
 }
 
-##Station data rendering
+## Station data rendering
 @app.route('/station')
 def station_page():
     # Getting stations by state
@@ -213,6 +218,7 @@ def station_page():
 
     return render_template('station.html', states_data=states_data, cities_data=cities_data, regions_data=regions_data, facilitytype_data=facilitytype_data)
 
+## Historical data rendering
 @app.route('/historical')
 def historical_USA():
     sql = """
@@ -239,16 +245,16 @@ def historical_USA():
     else:
         cagr_percentage = None
 
+        # year of year growth calc
     yoy_growth = []
     for i in range(1, len(historical_data)):
-        year = historical_data[i]["year"]  # Current year
+        year = historical_data[i]["year"]  #
         current_year_stations = float(historical_data[i]["total_electric_stations"])
         previous_year_stations = float(historical_data[i-1]["total_electric_stations"])
         growth_rate = ((current_year_stations - previous_year_stations) / previous_year_stations) * 100
         yoy_growth.append({"year": year, "growth": round(growth_rate, 2)})
 
     if start_value and end_value:
-        # Assuming start_value and end_value are already defined for CAGR calculation
         start_stations = float(start_value["total_electric_stations"])
         end_stations = float(end_value["total_electric_stations"])
         
@@ -260,5 +266,6 @@ def historical_USA():
 
     return render_template('historical.html', historical_data=historical_data, cagr_percentage=cagr_percentage, yoy_growth=yoy_growth, total_growth_percentage=total_growth_percentage)
 
+## Booting the app on 5000
 if __name__ == '__main__':
     app.run(debug=True)

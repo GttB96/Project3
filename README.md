@@ -1,4 +1,4 @@
-# Project3
+# Project3 Group 3 - EV Charging Stations Data And Analysis
 
 ## Instructions to run on local machine
 

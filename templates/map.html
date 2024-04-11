@@ -61,20 +61,17 @@
     });
 
     function loadVisibleStations() {
-    // Example: Adjust to fetch or filter data based on map bounds
     var bounds = map.getBounds();
     var visibleStations = stations.filter(station => 
       bounds.contains(L.latLng(station.latitude, station.longitude))
     );
 
-    // Clear existing markers
     map.eachLayer(function(layer) {
       if (layer instanceof L.Marker) {
         map.removeLayer(layer);
       }
     });
 
-    // Add markers for visible stations
     visibleStations.forEach(function(station) {
       L.marker([station.latitude, station.longitude], {icon: customIcon}).addTo(map)
         .bindPopup(`<b>${station.stationname}</b><br>${station.street_address}<br>${station.city}, ${station.state} ${station.zip}<br>Station Count: ${station.station_count}<br>Fuel Type: ${station.fueltypecode}<br>Facility Type: ${station.facilitytype}`);
@@ -92,11 +89,11 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 var heatMapData = stationsDataAll
 .filter(station => station.latitude !== undefined && station.longitude !== undefined)
-.map(station => [station.latitude, station.longitude, 1]); // Each station contributes equally
+.map(station => [station.latitude, station.longitude, 1]);
 
 L.heatLayer(heatMapData, {
-  radius: 25, // Consider adjusting based on visual testing
-  blur: 15, // Consider adjusting based on visual testing
+  radius: 25, 
+  blur: 15, 
   gradient: {
     0.2: 'blue', 
     0.4: 'cyan', 
@@ -105,7 +102,7 @@ L.heatLayer(heatMapData, {
     0.9: 'orange',
     1.0: 'red'
   },
-  maxZoom: 13, // Adjust as necessary to control heatmap appearance at various zoom levels
+  maxZoom: 13, 
 }).addTo(heatMap);
   </script>
   <!-- function to find nearest station using button -->
