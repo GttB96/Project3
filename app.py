@@ -112,8 +112,8 @@ WHERE
     AND accesscode = 'public'
     AND (maximumvehicleclass = 'LD' OR maximumvehicleclass IS NULL)
     AND state <> 'PR'
-    AND LENGTH(zip) = 5 -- Ensure ZIP codes are 5 digits
-    AND zip NOT LIKE '%.0'; -- Exclude ZIP codes ending in ".0"
+    AND LENGTH(zip) = 5 
+    AND zip NOT LIKE '%.0'; 
     """
     stations_result = db.session.execute(text(all_stations))
     stationsDataAll = [dict(row) for row in stations_result.mappings()]
