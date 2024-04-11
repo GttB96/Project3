@@ -35,6 +35,6 @@
 #### https://afdc.energy.gov/stations/states
 
 ### Ethical Considerations
-#### The ethical concerns around this application are low. Considering we are not storing any personal information or need any personal information for the application to function and risk for a data leak or breach is low. On the other hand, the security used in the application is weak which could lead to potential threats if made available outside your local network. The application does require username and password for the database, the username and password used in this application is stored on an .env files which is ignored in github thus minimizing risk to user data. 
+#### The ethical concerns around this application are low. Considering we are not storing any personal information or need any personal information for the application to function the risk for a data leak or breach is very low. On the other hand, the security used in the application is weak which could lead to potential threats if made available outside your local network. The application does require username and password for the database, the username and password used in this application is stored on an .env files which is ignored in github thus minimizing risk to user data. 
 
 
